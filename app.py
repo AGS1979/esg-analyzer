@@ -11,6 +11,34 @@ import base64
 import streamlit as st
 from bs4 import BeautifulSoup
 from ESGComp import extract_data_from_html, generate_comparison_html
+import pandas as pd
+from xhtml2pdf import pisa
+import os
+
+
+# --- Email Whitelist ---
+WHITELISTED_EMAILS = {
+    "avinashg.singh@aranca.com",
+    "avi104@yahoo.co.in"
+}
+
+# --- Email Verification ---
+if "authorized" not in st.session_state:
+    st.session_state["authorized"] = False
+
+if not st.session_state["authorized"]:
+    st.title("🔐 ESG Analyzer Login")
+    user_email = st.text_input("Enter your email to proceed", placeholder="your@email.com")
+
+    if st.button("🔓 Verify Email"):
+        if user_email.strip().lower() in WHITELISTED_EMAILS:
+            st.session_state["authorized"] = True
+            st.session_state["user_email"] = user_email.strip()
+            st.success("Access granted! Scroll down to use the tool.")
+        else:
+            st.error("Access denied. Email not whitelisted.")
+    st.stop()
+
 
 # Try to import OCR libraries if available
 try:
@@ -510,8 +538,6 @@ def updated_generate_esg_report(pdf_file, company_name):
 # --------------------------
 # ✅ STREAMLIT INTERFACE (Enhanced, Final)
 # --------------------------
-import streamlit as st
-import base64
 
 # --- Page Setup ---
 st.set_page_config(page_title="Aranca ESG Analyzer", layout="wide")
@@ -650,6 +676,15 @@ with st.container():
 
     file = st.file_uploader("📄 Upload ESG Disclosure PDF", type="pdf")
 
+def convert_html_to_pdf(html_content):
+    """Converts HTML string to PDF and returns as BytesIO"""
+    pdf_stream = io.BytesIO()
+    pisa_status = pisa.CreatePDF(io.StringIO(html_content), dest=pdf_stream)
+    if pisa_status.err:
+        return None
+    pdf_stream.seek(0)
+    return pdf_stream
+
 
     if st.button("🚀 Generate ESG Report"):
         if not all([company, file]):
@@ -680,13 +715,43 @@ with st.container():
                     for r in esg_data["management_remarks"]: st.markdown(f"> {r}")
 
                 html_file, filename = generate_html_report(esg_data, company)
-                html_file.seek(0)
+                html_content = html_file.read().decode("utf-8")
+
+                # Download as HTML
                 st.download_button(
-                    label="📥 Download ESG HTML Report",
-                    data=html_file.read(),
+                    label="📥 Download HTML Report",
+                    data=html_content,
                     file_name=f"{filename}.html",
                     mime="text/html"
                 )
+
+                # Convert to PDF
+                pdf_stream = convert_html_to_pdf(html_content)
+                if pdf_stream:
+                    st.download_button(
+                        label="📄 Download PDF Report",
+                        data=pdf_stream,
+                        file_name=f"{filename}.pdf",
+                        mime="application/pdf"
+                    )
+                else:
+                    st.warning("⚠️ PDF export failed. Try downloading the HTML version.")
+
+                # --- Log access ---
+                try:
+                    log_entry = {
+                        "email": st.session_state.get("user_email", "unknown"),
+                        "company": company,
+                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    df_log = pd.DataFrame([log_entry])
+                    if not os.path.exists("access_log.csv"):
+                        df_log.to_csv("access_log.csv", index=False)
+                    else:
+                        df_log.to_csv("access_log.csv", mode="a", header=False, index=False)
+                except Exception as log_err:
+                    st.warning(f"Logging failed: {log_err}")
+
 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -751,7 +816,6 @@ if st.button("🔍 Compare Reports"):
                 )
         except Exception as e:
             st.error(f"❌ Error generating comparison: {str(e)}")
-
 
 # Footer
 st.markdown(f"""
