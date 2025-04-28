@@ -34,7 +34,7 @@ if not st.session_state["authorized"]:
         if user_email.strip().lower() in WHITELISTED_EMAILS:
             st.session_state["authorized"] = True
             st.session_state["user_email"] = user_email.strip()
-            st.success("✅ Access granted! Please refresh or interact with the page to load the ESG Analyzer.")
+            st.success("✅ Access granted! Please click on 'Verify Email' one more time to load the ESG Analyzer.")
         else:
             st.error("❌ Access denied. Email not whitelisted.")
 
