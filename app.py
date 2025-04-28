@@ -3,7 +3,6 @@ import fitz  # PyMuPDF for PDF extraction
 import requests
 import re
 import io
-from flask import send_file
 from datetime import datetime
 from streamlit_echarts import st_echarts
 import streamlit.components.v1 as components
@@ -671,10 +670,72 @@ st.markdown(f"""
 
 # --- Input UI ---
 with st.container():
-
     company = st.text_input("🏢 Enter Company Name", placeholder="Type here...")
-
     file = st.file_uploader("📄 Upload ESG Disclosure PDF", type="pdf")
+
+    if st.button("🚀 Generate ESG Report"):
+        if not all([company, file]):
+            st.error("Please enter a company name and upload a PDF file.")
+        else:
+            with st.spinner("Analyzing ESG disclosures..."):
+                text = extract_text_from_pdf(file)
+                response = analyze_esg_with_deepseek(text)
+                esg_data = parse_esg_data(response)
+
+                esg_data["rubric_score"] = score_esg_by_rubric(esg_data)
+                st.markdown(f"""
+                    <div style='margin-top:10px;padding:10px;background:#010101;border-radius:6px'>
+                        <b>LLM Score:</b> {esg_data['sentiment_score']} / 10<br>
+                        <b>Rubric Score:</b> {esg_data.get('rubric_score', 'N/A')} / 10
+                    </div>
+                """, unsafe_allow_html=True)
+
+                show_esg_gauge(float(esg_data["rubric_score"]))
+
+                with st.expander("🌍 Environmental Insights"):
+                    for e in esg_data["environment"]: st.markdown(f"- {e}")
+                with st.expander("🏢 Social Insights"):
+                    for s in esg_data["social"]: st.markdown(f"- {s}")
+                with st.expander("🏛 Governance Insights"):
+                    for g in esg_data["governance"]: st.markdown(f"- {g}")
+                with st.expander("🎤 Management Remarks"):
+                    for r in esg_data["management_remarks"]: st.markdown(f"> {r}")
+
+                html_file, filename = generate_html_report(esg_data, company)
+                html_content = html_file.read().decode("utf-8")
+
+                st.download_button(
+                    label="📥 Download HTML Report",
+                    data=html_content,
+                    file_name=f"{filename}.html",
+                    mime="text/html"
+                )
+
+                pdf_stream = convert_html_to_pdf(html_content)
+                if pdf_stream:
+                    st.download_button(
+                        label="📄 Download PDF Report",
+                        data=pdf_stream,
+                        file_name=f"{filename}.pdf",
+                        mime="application/pdf"
+                    )
+                else:
+                    st.warning("⚠️ PDF export failed. Try downloading the HTML version.")
+
+                try:
+                    log_entry = {
+                        "email": st.session_state.get("user_email", "unknown"),
+                        "company": company,
+                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    df_log = pd.DataFrame([log_entry])
+                    if not os.path.exists("access_log.csv"):
+                        df_log.to_csv("access_log.csv", index=False)
+                    else:
+                        df_log.to_csv("access_log.csv", mode="a", header=False, index=False)
+                except Exception as log_err:
+                    st.warning(f"Logging failed: {log_err}")
+
 
 def convert_html_to_pdf(html_content):
     """Converts HTML string to PDF and returns as BytesIO"""
@@ -684,77 +745,6 @@ def convert_html_to_pdf(html_content):
         return None
     pdf_stream.seek(0)
     return pdf_stream
-
-
-if st.button("🚀 Generate ESG Report"):
-    if not all([company, file]):
-        st.error("Please enter a company name and upload a PDF file.")
-    else:
-        with st.spinner("Analyzing ESG disclosures..."):
-            text = extract_text_from_pdf(file)
-            response = analyze_esg_with_deepseek(text)
-            esg_data = parse_esg_data(response)
-
-            esg_data["rubric_score"] = score_esg_by_rubric(esg_data)
-            st.markdown(f"""
-                <div style='margin-top:10px;padding:10px;background:#010101;border-radius:6px'>
-                    <b>LLM Score:</b> {esg_data['sentiment_score']} / 10<br>
-                    <b>Rubric Score:</b> {esg_data.get('rubric_score', 'N/A')} / 10
-                </div>
-            """, unsafe_allow_html=True)
-
-            show_esg_gauge(float(esg_data["rubric_score"]))
-
-            with st.expander("🌍 Environmental Insights"):
-                for e in esg_data["environment"]: st.markdown(f"- {e}")
-            with st.expander("🏢 Social Insights"):
-                for s in esg_data["social"]: st.markdown(f"- {s}")
-            with st.expander("🏛 Governance Insights"):
-                for g in esg_data["governance"]: st.markdown(f"- {g}")
-            with st.expander("🎤 Management Remarks"):
-                for r in esg_data["management_remarks"]: st.markdown(f"> {r}")
-
-            html_file, filename = generate_html_report(esg_data, company)
-            html_content = html_file.read().decode("utf-8")
-
-            # Download as HTML
-            st.download_button(
-                label="📥 Download HTML Report",
-                data=html_content,
-                file_name=f"{filename}.html",
-                mime="text/html"
-            )
-
-            # Convert to PDF
-            pdf_stream = convert_html_to_pdf(html_content)
-            if pdf_stream:
-                st.download_button(
-                    label="📄 Download PDF Report",
-                    data=pdf_stream,
-                    file_name=f"{filename}.pdf",
-                    mime="application/pdf"
-                )
-            else:
-                st.warning("⚠️ PDF export failed. Try downloading the HTML version.")
-
-            # --- Log access ---
-            try:
-                log_entry = {
-                    "email": st.session_state.get("user_email", "unknown"),
-                    "company": company,
-                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                }
-                df_log = pd.DataFrame([log_entry])
-                if not os.path.exists("access_log.csv"):
-                    df_log.to_csv("access_log.csv", index=False)
-                else:
-                    df_log.to_csv("access_log.csv", mode="a", header=False, index=False)
-            except Exception as log_err:
-                st.warning(f"Logging failed: {log_err}")
-
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
 
 # --- Section: ESG Comparison Tool ---
 st.markdown("---")
