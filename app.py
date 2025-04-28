@@ -36,7 +36,7 @@ if not st.session_state["authorized"]:
             st.session_state["user_email"] = user_email.strip()
             st.success("✅ Access granted! Please click on 'Verify Email' one more time to load the ESG Analyzer.")
         else:
-            st.error("❌ Access denied. Email not whitelisted.")
+            st.error("❌ Access denied. Email not verified.")
 
     # Stop rendering rest of app
     st.stop()
