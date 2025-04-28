@@ -33,10 +33,12 @@ if not st.session_state["authorized"]:
         if user_email.strip().lower() in WHITELISTED_EMAILS:
             st.session_state["authorized"] = True
             st.session_state["user_email"] = user_email.strip()
-            st.success("Access granted! Scroll down to use the tool.")
+            st.success("Access granted! Loading tool...")
+            st.experimental_rerun()
         else:
             st.error("Access denied. Email not whitelisted.")
-    st.stop()
+        st.stop()
+
 
 
 # Try to import OCR libraries if available
