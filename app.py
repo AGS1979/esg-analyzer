@@ -1,4 +1,6 @@
 # ESG Insights Code:
+import streamlit as st
+st.set_page_config(page_title="Aranca ESG Analyzer", layout="wide")
 import fitz  # PyMuPDF for PDF extraction
 import requests
 import re
@@ -7,7 +9,6 @@ from datetime import datetime
 from streamlit_echarts import st_echarts
 import streamlit.components.v1 as components
 import base64
-import streamlit as st
 from bs4 import BeautifulSoup
 from ESGComp import extract_data_from_html, generate_comparison_html
 import pandas as pd
@@ -541,7 +542,6 @@ def updated_generate_esg_report(pdf_file, company_name):
 # --------------------------
 
 # --- Page Setup ---
-st.set_page_config(page_title="Aranca ESG Analyzer", layout="wide")
 
 # Logo loader
 def get_base64_logo(path):
