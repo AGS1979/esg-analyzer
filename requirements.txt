@@ -5,5 +5,4 @@ beautifulsoup4
 streamlit-echarts
 flask
 openai
-xhtml2pdf
 

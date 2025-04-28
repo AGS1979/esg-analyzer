@@ -12,7 +12,6 @@ import base64
 from bs4 import BeautifulSoup
 from ESGComp import extract_data_from_html, generate_comparison_html
 import pandas as pd
-from xhtml2pdf import pisa
 import os
 
 
@@ -719,17 +718,6 @@ if st.session_state["authorized"]:
                         mime="text/html"
                     )
 
-                    pdf_stream = convert_html_to_pdf(html_content)
-                    if pdf_stream:
-                        st.download_button(
-                            label="📄 Download PDF Report",
-                            data=pdf_stream,
-                            file_name=f"{filename}.pdf",
-                            mime="application/pdf"
-                        )
-                    else:
-                        st.warning("⚠️ PDF export failed. Try downloading the HTML version.")
-
                     try:
                         log_entry = {
                             "email": st.session_state.get("user_email", "unknown"),
@@ -743,16 +731,6 @@ if st.session_state["authorized"]:
                             df_log.to_csv("access_log.csv", mode="a", header=False, index=False)
                     except Exception as log_err:
                         st.warning(f"Logging failed: {log_err}")
-
-
-    def convert_html_to_pdf(html_content):
-        """Converts HTML string to PDF and returns as BytesIO"""
-        pdf_stream = io.BytesIO()
-        pisa_status = pisa.CreatePDF(io.StringIO(html_content), dest=pdf_stream)
-        if pisa_status.err:
-            return None
-        pdf_stream.seek(0)
-        return pdf_stream
 
     # --- Section: ESG Comparison Tool ---
     st.markdown("---")
