@@ -1,0 +1,12 @@
+streamlit
+PyMuPDF
+requests
+beautifulsoup4
+streamlit-echarts
+requests
+io
+re
+flask
+datetime
+base64
+OpenAI
