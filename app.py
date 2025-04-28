@@ -29,7 +29,7 @@ if "authorized" not in st.session_state:
     st.session_state["authorized"] = False
 
 if not st.session_state["authorized"]:
-    st.title("🔐 ESG Analyzer Login")
+    st.title("🔐 Login to Aranca ESG Analyzer")
     user_email = st.text_input("Enter your email to proceed", placeholder="your@email.com")
 
     if st.button("🔓 Verify Email"):
