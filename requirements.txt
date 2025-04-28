@@ -1,12 +1,7 @@
 streamlit
-PyMuPDF
+PyMuPDF==1.22.5
 requests
 beautifulsoup4
 streamlit-echarts
-requests
-io
-re
 flask
-datetime
-base64
-OpenAI
+openai
