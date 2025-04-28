@@ -19,7 +19,10 @@ import os
 # --- Email Whitelist ---
 WHITELISTED_EMAILS = {
     "avinashg.singh@aranca.com",
-    "avi104@yahoo.co.in"
+    "avi104@yahoo.co.in",
+    "ujjal.roy@aranca.com",
+    "vishal.kumar@aranca.com",
+    "rohit.dhawan@aranca.com"
 }
 
 # --- Email Verification ---
