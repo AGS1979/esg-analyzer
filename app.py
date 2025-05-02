@@ -1,6 +1,6 @@
 # ESG Insights Code:
 import streamlit as st
-st.set_page_config(page_title="Aranca ESG Analyzer", layout="wide")
+st.set_page_config(page_title="Aranca ESG Analyzer", layout="wide", page_icon="📊")
 
 import fitz  # PyMuPDF for PDF extraction
 import requests
@@ -78,8 +78,6 @@ if not st.session_state.get("authenticated"):
 if st.button("🔓 Logout"):
     st.session_state.clear()
     st.rerun()
-
-
 
 def embed_logo_base64(logo_path="logo.png"):
     with open(logo_path, "rb") as image_file:
@@ -578,132 +576,139 @@ def get_base64_logo(path):
 
 logo_base64 = get_base64_logo("logo.png")
 
-# 🌙 Toggle for Dark Mode
-#dark_mode = st.toggle("🌙 Dark Mode", value=False)
-
-# Colors based on toggle
-bg_color = "#ffffff"
-text_color = "#212121"
-label_color = "#222"
-input_bg = "#ffffff"
-placeholder_color = "#999"
-card_bg = "#f9f9f9"
-
-
-
-# Inject CSS style
+# Inject CSS style with improved layout
 st.markdown(f"""
 <style>
-    html, body, .main {{
+    /* Main container styling */
+    .main {{
         background-color: #ffffff;
         color: #010101;
     }}
+    
+    /* Header with logo and title */
+    .header-container {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        background-color: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }}
+    
+    .title-container {{
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }}
+    
+    .logo-container {{
+        display: flex;
+        align-items: center;
+    }}
+    
+    /* Button styling */
     .stButton > button {{
-        background-color: #ffffff;
-        color: black;
+        background-color: #2196F3;
+        color: white;
         border-radius: 8px;
         font-weight: bold;
+        padding: 0.5rem 1rem;
         transition: all 0.3s ease;
+        border: none;
     }}
+    
     .stButton > button:hover {{
-        background-color: #2196F3 !important;
-        color: white !important;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        background-color: #1976D2 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
     }}
-    .streamlit-expanderHeader:hover {{
-        color: #2196F3 !important;
-        background-color: #f5f5f5 !important;
-        cursor: pointer;
-    }}
-    .esg-box {{
-        background-color: #f9f9f9;
-        padding: 2rem;
-        border-radius: 10px;
-        box-shadow: 0 0 10px #ccc;
-    }}
-    .custom-footer {{
-        position: fixed;
-        bottom: 15px;
-        width: 100%;
-        text-align: center;
-        color: #010101;
-        font-size: 0.85em;
-    }}
-    a {{
-        color: #1976d2;
-    }}
-    label, .stTextInput label, .stFileUploader label {{
-        color: #222 !important;
-        font-size: 1.2rem !important;
+    
+    /* Expander styling */
+    .streamlit-expanderHeader {{
+        font-size: 1.1rem !important;
         font-weight: 600 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 10px;
+        color: #2196F3 !important;
+        padding: 0.75rem 1rem;
     }}
-    input, .stTextInput input, .stFileUploader input {{
+    
+    .streamlit-expanderHeader:hover {{
+        background-color: #f5f5f5 !important;
+    }}
+    
+    /* Input fields */
+    .stTextInput input, .stFileUploader label {{
         font-size: 1rem !important;
         color: #222 !important;
-        background-color: #fff !important;
-        border: 1px solid #ccc !important;
     }}
-    .stTextInput input::placeholder {{
-        color: #999 !important;
+    
+    /* Score box */
+    .score-box {{
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+        border-left: 4px solid #2196F3;
     }}
-    .stAlert, .stMarkdown, .css-1cpxqw2, .css-12ttj6m {{
-        color: #010101 !important;
-        font-size: 1.2rem;
+    
+    /* Custom footer */
+    .custom-footer {{
+        text-align: center;
+        padding: 1rem;
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 2rem;
     }}
-    .streamlit-expanderContent {{
-        color: #333 !important;
-        font-size: 0.97rem !important;
+    
+    /* Download button */
+    .stDownloadButton > button {{
+        background-color: #4CAF50 !important;
+        color: white !important;
     }}
-    .esg-scorebox {{
-        margin-top: 10px;
-        padding: 10px;
-        background: #f1f1f1;
-        border-radius: 6px;
-        font-size: 1rem;
-        color: #222;
+    
+    .stDownloadButton > button:hover {{
+        background-color: #388E3C !important;
     }}
-
-
-/* Fix st.download_button styling */
-.css-ocqkz7, .stDownloadButton > button {{
-    background-color: #ffffff !important;
-    color: #010101 !important;
-    font-weight: bold !important;
-    border: 1px solid #ccc !important;
-    border-radius: 8px !important;
-    padding: 0.6rem 1.2rem !important;
-    font-size: 1.05rem !important;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}}
-
-.css-ocqkz7:hover, .stDownloadButton > button:hover {{
-    background-color: #2196F3 !important;
-    color: #ffffff !important;
-    cursor: pointer !important;
-}}
-
-
-
+    
+    /* Section dividers */
+    .section-divider {{
+        border-top: 1px solid #eee;
+        margin: 2rem 0;
+    }}
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {{
+        .header-container {{
+            flex-direction: column;
+            align-items: flex-start;
+        }}
+        .logo-container {{
+            margin-bottom: 1rem;
+        }}
+    }}
 </style>
 
-<!-- HEADER: logo > title > subtitle -->
-<div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-    <img src="data:image/png;base64,{logo_base64}" style="height: 40px; max-width: 240px; margin-bottom: 10px;" />
-    <h1 style="margin: 0; font-size: 2.6rem; color: #010101;">ESG Insights Dashboard</h1>
-    <p style="margin: 6px 0 0 0; font-size: 1.1rem; color: #010101;">AI-powered ESG Analysis and Scoring</p>
+<!-- Header with logo at top right -->
+<div class="header-container">
+    <div class="title-container">
+        <h1 style="margin: 0; font-size: 2rem; color: #010101;">ESG Insights Dashboard</h1>
+        <p style="margin: 0.25rem 0 0 0; font-size: 1rem; color: #666;">AI-powered ESG Analysis and Scoring</p>
+    </div>
+    <div class="logo-container">
+        <img src="data:image/png;base64,{logo_base64}" style="height: 40px; max-width: 200px;"/>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
 # --- Input UI ---
 with st.container():
-    company = st.text_input("🏢 Enter Company Name", placeholder="Type here...")
-    file = st.file_uploader("📄 Upload ESG Disclosure PDF", type="pdf")
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        company = st.text_input("🏢 Enter Company Name", placeholder="Type here...")
+    with col2:
+        file = st.file_uploader("📄 Upload ESG Disclosure PDF", type="pdf")
 
-    if st.button("🚀 Generate ESG Report"):
+    if st.button("🚀 Generate ESG Report", type="primary"):
         if not all([company, file]):
             st.error("Please enter a company name and upload a PDF file.")
         else:
@@ -713,24 +718,38 @@ with st.container():
                 esg_data = parse_esg_data(response)
 
                 esg_data["rubric_score"] = score_esg_by_rubric(esg_data)
+                
+                # Display scores in a nice box
                 st.markdown(f"""
-                    <div style='margin-top:10px;padding:10px;background:#010101;border-radius:6px'>
-                        <b>LLM Score:</b> {esg_data['sentiment_score']} / 10<br>
-                        <b>Rubric Score:</b> {esg_data.get('rubric_score', 'N/A')} / 10
+                    <div class="score-box">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div><strong>LLM Score:</strong> {esg_data['sentiment_score']}/10</div>
+                            <div><strong>Rubric Score:</strong> {esg_data.get('rubric_score', 'N/A')}/10</div>
+                        </div>
                     </div>
                 """, unsafe_allow_html=True)
 
+                # Show gauge chart
                 show_esg_gauge(float(esg_data["rubric_score"]))
 
-                with st.expander("🌍 Environmental Insights"):
-                    for e in esg_data["environment"]: st.markdown(f"- {e}")
+                # Display insights in expanders
+                with st.expander("🌍 Environmental Insights", expanded=True):
+                    for e in esg_data["environment"]: 
+                        st.markdown(f"<div style='margin-bottom: 0.5rem;'>• {e}</div>", unsafe_allow_html=True)
+                
                 with st.expander("🏢 Social Insights"):
-                    for s in esg_data["social"]: st.markdown(f"- {s}")
+                    for s in esg_data["social"]: 
+                        st.markdown(f"<div style='margin-bottom: 0.5rem;'>• {s}</div>", unsafe_allow_html=True)
+                
                 with st.expander("🏛 Governance Insights"):
-                    for g in esg_data["governance"]: st.markdown(f"- {g}")
+                    for g in esg_data["governance"]: 
+                        st.markdown(f"<div style='margin-bottom: 0.5rem;'>• {g}</div>", unsafe_allow_html=True)
+                
                 with st.expander("🎤 Management Remarks"):
-                    for r in esg_data["management_remarks"]: st.markdown(f"> {r}")
+                    for r in esg_data["management_remarks"]: 
+                        st.markdown(f"<div style='margin-bottom: 1rem; padding-left: 1rem; border-left: 3px solid #2196F3; font-style: italic;'>\"{r}\"</div>", unsafe_allow_html=True)
 
+                # Generate and offer download
                 html_file, filename = generate_html_report(esg_data, company)
                 html_content = html_file.read().decode("utf-8")
 
@@ -756,14 +775,14 @@ with st.container():
                     st.warning(f"Logging failed: {log_err}")
 
 # --- Section: ESG Comparison Tool ---
-st.markdown("---")
-st.markdown("<h2 style='color:#010101;'>📊 ESG Comparison Tool</h2>", unsafe_allow_html=True)
+st.markdown("""<div class="section-divider"></div>""", unsafe_allow_html=True)
+st.markdown("<h2 style='color:#2196F3;'>📊 ESG Comparison Tool</h2>", unsafe_allow_html=True)
 
 uploaded_html_files = st.file_uploader(
     "📂 Upload up to 5 ESG HTML Reports", type="html", accept_multiple_files=True
 )
 
-if st.button("🔍 Compare Reports"):
+if st.button("🔍 Compare Reports", type="primary"):
     if not uploaded_html_files:
         st.warning("Please upload at least one HTML file.")
     elif len(uploaded_html_files) > 5:
@@ -817,7 +836,7 @@ if st.button("🔍 Compare Reports"):
             st.error(f"❌ Error generating comparison: {str(e)}")
 
 # Footer
-st.markdown(f"""
+st.markdown("""
 <div class="custom-footer">
     &copy; 2025 Aranca. Contact: <a href="mailto:inquiry@aranca.com">inquiry@aranca.com</a> |
     <a href="https://www.linkedin.com/company/aranca" target="_blank">LinkedIn</a>
