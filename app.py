@@ -17,142 +17,6 @@ import streamlit.components.v1 as components
 from bs4 import BeautifulSoup
 from ESGComp import extract_data_from_html, generate_comparison_html
 
-# --- Logo loader ---
-def get_base64_logo(path):
-    with open(path, "rb") as f:
-        return base64.b64encode(f.read()).decode()
-
-logo_base64 = get_base64_logo("logo.png")
-
-# --- Inject CSS style with improved layout (moved to top) ---
-st.markdown(f"""
-<style>
-    /* Main container styling */
-    .main {{
-        background-color: #f8f9fa;
-        color: #212529;
-    }}
-    
-    /* Header with logo and title */
-    .header-container {{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 2rem;
-        background-color: white;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        margin-bottom: 2rem;
-    }}
-    
-    .title-container {{
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }}
-    
-    .logo-container {{
-        display: flex;
-        align-items: center;
-    }}
-    
-    /* Login/Signup styling */
-    .login-container {{
-        max-width: 500px;
-        margin: 2rem auto;
-        padding: 2rem;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
-    }}
-    
-    .login-title {{
-        text-align: center;
-        color: #2196F3;
-        margin-bottom: 1.5rem;
-    }}
-    
-    .login-logo {{
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }}
-    
-    .stSidebar {{
-        background-color: #f8f9fa !important;
-    }}
-    
-    .sidebar-content {{
-        padding: 1.5rem;
-    }}
-    
-    .sidebar-title {{
-        color: #2196F3;
-        margin-bottom: 1rem;
-    }}
-    
-    /* Button styling */
-    .stButton > button {{
-        background-color: #2196F3;
-        color: white;
-        border-radius: 8px;
-        font-weight: bold;
-        padding: 0.5rem 1rem;
-        transition: all 0.3s ease;
-        border: none;
-        width: 100%;
-    }}
-    
-    .stButton > button:hover {{
-        background-color: #1976D2 !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
-    }}
-    
-    /* Input fields */
-    .stTextInput input, .stTextInput label, 
-    .stFileUploader label, .stRadio label {{
-        font-size: 1rem !important;
-        color: #495057 !important;
-    }}
-    
-    .stTextInput input {{
-        padding: 0.5rem 0.75rem !important;
-        border-radius: 6px !important;
-        border: 1px solid #ced4da !important;
-    }}
-    
-    /* Alert boxes */
-    .stAlert {{
-        border-radius: 8px;
-    }}
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {{
-        .header-container {{
-            flex-direction: column;
-            align-items: flex-start;
-        }}
-        .logo-container {{
-            margin-bottom: 1rem;
-        }}
-        .login-container {{
-            padding: 1.5rem;
-            margin: 1rem;
-        }}
-    }}
-</style>
-
-<!-- Header with logo at top right -->
-<div class="header-container">
-    <div class="title-container">
-        <h1 style="margin: 0; font-size: 2rem; color: #010101;">ESG Insights Dashboard</h1>
-        <p style="margin: 0.25rem 0 0 0; font-size: 1rem; color: #666;">AI-powered ESG Analysis and Scoring</p>
-    </div>
-    <div class="logo-container">
-        <img src="data:image/png;base64,{logo_base64}" style="height: 40px; max-width: 200px;"/>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
 # --- API Keys ---
 DEEPSEEK_API_KEY = st.secrets["deepseek"]["api_key"]
 
@@ -182,42 +46,33 @@ def hash_password(password):
 
 # --- Auth UI (Only show if not authenticated) ---
 if not st.session_state.get("authenticated"):
-    # Custom styled login sidebar
-    with st.sidebar:
-        st.markdown(f"""
-        <div class="sidebar-content">
-            <div class="login-logo">
-                <img src="data:image/png;base64,{logo_base64}" style="height: 40px; max-width: 200px;"/>
-            </div>
-            <h3 class="sidebar-title">🔐 User Authentication</h3>
-        """, unsafe_allow_html=True)
-        
-        auth_mode = st.radio("Choose Mode", ["Login", "Sign Up"])
-        email = st.text_input("Email")
-        password = st.text_input("Password", type="password")
+    st.sidebar.header("🔐 User Authentication")
+    auth_mode = st.sidebar.radio("Choose Mode", ["Login", "Sign Up"])
+    email = st.sidebar.text_input("Email")
+    password = st.sidebar.text_input("Password", type="password")
 
-        if auth_mode == "Sign Up":
-            if st.button("Create Account", key="signup"):
-                if email.lower() not in WHITELISTED_EMAILS:
-                    st.error("❌ Please write to inquiry@aranca.com to verify your email id.")
-                elif email in credentials:
-                    st.warning("⚠️ Email already registered.")
-                else:
-                    credentials[email] = hash_password(password)
-                    with open(CRED_FILE, "w") as f:
-                        json.dump(credentials, f)
-                    st.success("✅ Account created! Please log in.")
+    if auth_mode == "Sign Up":
+        if st.sidebar.button("Create Account"):
+            if email.lower() not in WHITELISTED_EMAILS:
+                st.sidebar.error("❌ Please write to inquiry@aranca.com to verify your email id.")
+            elif email in credentials:
+                st.sidebar.warning("⚠️ Email already registered.")
+            else:
+                credentials[email] = hash_password(password)
+                with open(CRED_FILE, "w") as f:
+                    json.dump(credentials, f)
+                st.sidebar.success("✅ Account created! Please log in.")
 
-        if auth_mode == "Login":
-            if st.button("Login", key="login"):
-                if email in credentials and credentials[email] == hash_password(password):
-                    st.session_state["authenticated"] = True
-                    st.session_state["user_email"] = email
-                    st.rerun()
-                else:
-                    st.error("❌ Invalid email or password.")
-        
-        st.markdown("</div>", unsafe_allow_html=True)
+    if auth_mode == "Login":
+        if st.sidebar.button("Login"):
+            if email in credentials and credentials[email] == hash_password(password):
+                st.session_state["authenticated"] = True
+                st.session_state["user_email"] = email
+            else:
+                st.sidebar.error("❌ Invalid email or password.")
+
+    st.warning("⚠️ Please log in from the sidebar to access the app.")
+    st.stop()
 
 # --- Logout Button ---
 if st.button("🔓 Logout"):
