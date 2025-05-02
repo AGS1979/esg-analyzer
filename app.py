@@ -219,24 +219,6 @@ if not st.session_state.get("authenticated"):
         
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # Main login page content
-    st.markdown(f"""
-    <div class="login-container">
-        <h2 class="login-title">Welcome to ESG Insights Analyzer</h2>
-        <div style="text-align: center; margin-bottom: 1.5rem;">
-            <img src="data:image/png;base64,{logo_base64}" style="height: 80px; max-width: 300px;"/>
-        </div>
-        <div style="text-align: center; margin-bottom: 2rem;">
-            <p>Please log in using the sidebar to access the ESG analysis tools.</p>
-        </div>
-        <div style="text-align: center; color: #6c757d; font-size: 0.9rem;">
-            <p>Don't have access? Contact <a href="mailto:inquiry@aranca.com">inquiry@aranca.com</a></p>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.stop()
-
 # --- Logout Button ---
 if st.button("🔓 Logout"):
     st.session_state.clear()
