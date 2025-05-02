@@ -18,6 +18,9 @@ from bs4 import BeautifulSoup
 from ESGComp import extract_data_from_html, generate_comparison_html
 
 
+st.write(st.secrets)
+
+
 # --- API Keys ---
 DEEPSEEK_API_KEY = st.secrets["deepseek"]["api_key"]
 
