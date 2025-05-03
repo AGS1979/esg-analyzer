@@ -83,7 +83,7 @@ if not st.session_state.get("authenticated"):
     # Ensure logo_base64 is defined before this block
     st.markdown(f"""
     <div style="display: flex; flex-direction: column; align-items: flex-start; margin-left: 10px; margin-top: 10px;">
-        <img src="data:image/png;base64,{logo_base64}" style="height: 40px; margin-bottom: 10px;" />
+        <img src="data:image/png;base64,{logo_base64}" style="height: 30px; margin-bottom: 10px;" />
         <h1 style="margin: 0; font-size: 2.2rem; color: #010101;">ESG Analyzer</h1>
         <p style="margin: 4px 0 0 0; font-size: 1.1rem; color: #444;">ESG Insights from Sustainability Reports</p>
     </div>
