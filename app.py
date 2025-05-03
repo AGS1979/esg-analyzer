@@ -720,7 +720,7 @@ st.markdown(f"""
         <p style="margin: 0.25rem 0 0 0; font-size: 1rem; color: #666;">AI-powered ESG Analysis and Scoring</p>
     </div>
     <div class="logo-container">
-        <img src="data:image/png;base64,{logo_base64}" style="height: 28px; max-width: 140px;"/>
+        <img src="data:image/png;base64,{logo_base64}" style="height: 32px; max-width: 170px;"/>
     </div>
 </div>
 """, unsafe_allow_html=True)
