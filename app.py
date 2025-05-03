@@ -20,6 +20,15 @@ from ESGComp import extract_data_from_html, generate_comparison_html
 # --- API Keys ---
 DEEPSEEK_API_KEY = st.secrets["deepseek"]["api_key"]
 
+
+# --- Logo and Base64 encoding ---
+def get_base64_logo(path="logo.png"):
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+logo_base64 = get_base64_logo()
+
+
 # --- Whitelisted Emails ---
 WHITELISTED_EMAILS = {
     "avinashg.singh@aranca.com",
@@ -71,7 +80,23 @@ if not st.session_state.get("authenticated"):
             else:
                 st.sidebar.error("❌ Invalid email or password.")
 
-    st.warning("⚠️ Please log in from the sidebar to access the app.")
+    # Ensure logo_base64 is defined before this block
+    st.markdown(f"""
+    <div style="display: flex; flex-direction: column; align-items: flex-start; margin-left: 10px; margin-top: 10px;">
+        <img src="data:image/png;base64,{logo_base64}" style="height: 60px; margin-bottom: 10px;" />
+        <h1 style="margin: 0; font-size: 2.2rem; color: #010101;">Management Tone Analyzer</h1>
+        <p style="margin: 4px 0 0 0; font-size: 1.1rem; color: #444;">AI-Powered Evasiveness Detection from Earnings Calls</p>
+    </div>
+    """, unsafe_allow_html=True)    
+
+
+
+
+    st.markdown("""
+    <div style="margin-top: 20px; font-size: 1rem; color: #444; display: flex; align-items: center;">
+        <span style="font-size: 1.2rem; margin-right: 8px;">⚠️</span> Please log in from the sidebar to access the app.
+    </div>
+    """, unsafe_allow_html=True)
     st.stop()
 
 # --- Logout Button ---
