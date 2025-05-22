@@ -19,6 +19,7 @@ from ESGComp import extract_data_from_html, generate_comparison_html
 
 # --- API Keys ---
 DEEPSEEK_API_KEY = st.secrets["deepseek"]["api_key"]
+DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
 
 
 # --- Logo and Base64 encoding ---
